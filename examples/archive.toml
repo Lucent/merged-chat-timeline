@@ -1,0 +1,118 @@
+# archive.toml: put this in the top folder of your chat logs and edit it. Paths are relative to that folder.
+# Then:  merged-chat-timeline files <folder>   (check what each source picks up)
+#        merged-chat-timeline import <folder>  (build the index)
+#        merged-chat-timeline view <folder>
+
+# Where the index goes. It holds message text: keep it somewhere private. Default:
+# ~/.local/share/merged-chat-timeline/<folder name>.db
+# database = "~/.local/share/merged-chat-timeline/my-logs.db"
+
+[time]
+# Many logs record only the wall clock of the computer or phone that wrote them. Name that zone here.
+wall_clock = "America/New_York"
+# "Local time then": where you were, from each date on. The viewer shows times in these zones ('z' cycles through
+# then / the wall-clock zone / UTC).
+then = [["1990-01-01", "America/New_York"], ["2009-06-01", "Europe/Berlin"], ["2012-01-15", "America/New_York"]]
+
+[me]
+# Names that mean you, in any log (case and spaces are ignored). Add more in me.tsv, one per line.
+names = ["myhandle", "my handle", "me@example.com", "Firstname Lastname"]
+# Regular expressions over the same lower-case, space-free form, for families of handles (myhandle_, myhandle2...).
+patterns = ['^myhandle[_-]?\w{0,3}$']
+
+[display]
+# Show long account names shorter. people.tsv may use either form.
+abbreviate = { '@corp\.example\.com' = "@EX" }
+
+[networks]
+# A Trillian "medium" that was really another network (a company Jabber server, say).
+rename = { examplecorp = "jabber" }
+
+# One account written two ways by different clients: x@example.com and x@corp.example.com.
+[[fold]]
+network = "jabber"
+suffix = "@example.com"
+into = "@corp.example.com"
+
+[viewer]
+# Folders whose files can stand in for media links (Trillian file-transfer links -> the downloaded copy).
+media = ["Trillian Cloud/Linked media", "**/assets"]
+gap_days = 30            # '— 3 months later —' when a conversation pauses this long
+session_minutes = 60     # a faint line where it pauses this long within a day
+
+# ---- sources: which files hold which format. The first matching entry wins. ----
+# Path templates: {name} captures one path segment (or the part up to the next literal text), {name:regex} uses your
+# regex, * matches within a segment and ** any number of folders. Captures and fixed keys are passed to the format:
+#   network, contact   which conversation the file belongs to
+#   kind               im / channel / status (most formats work it out)
+# Formats: trillian, digsby, wlm-xml, msn-paste, whatsapp, icqdb-json, icq-history-txt, skypelogview-xml,
+#          discord-html, sms-eml, mirc, reddit, bluesky, instagram, tiktok, twitter, tinder
+# root = "../Backup" matches path under that folder instead (exports kept elsewhere); a .tar.xz or .zip export is
+# read as a stream, never unpacked. account = your handle there, where the export does not say.
+
+# Trillian: .log files and their .xml sidecars, as Trillian lays them out (one folder per PC here).
+[[source]]
+format = "trillian"
+path = "Trillian {machine}/{network}/**/{contact}.{ext:log|xml|txt}"
+exclude = ["**/assets/**"]
+
+# The Trillian server history export (and cloud caches): files named <medium>-<contact>.xml.
+[[source]]
+format = "trillian"
+path = "Trillian Cloud/{folder}/**/{network:[^/-]+}-{contact}.xml"
+
+# Digsby: <service>/<account>/<buddy>/<date>.html
+[[source]]
+format = "digsby"
+path = "Digsby Logs/{account}/{network}/{contact}/{file}.html"
+
+# Windows Live Messenger message history: one XML file per contact.
+[[source]]
+format = "wlm-xml"
+path = "My Received Files/*/History/{file}.xml"
+
+# WhatsApp "Export chat" text files: "WhatsApp Name +1 555-123-4567.txt" (a phone number in the name helps).
+[[source]]
+format = "whatsapp"
+path = "WhatsApp/{file}.txt"
+
+# ICQ 99a-2003a databases decoded with icqdb-decoder (github.com/Lucent/icqdb-decoder) into JSON lines.
+[[source]]
+format = "icqdb-json"
+path = "ICQ/{file}.jsonl"
+
+# DiscordChatExporter HTML.
+[[source]]
+format = "discord-html"
+path = "Discord/{file}.html"
+
+# Social exports, kept packed in a sibling folder. Posts become one conversation each ('posts', 'comments'), direct
+# messages one per contact. Twitter names people only by id: a users.tsv (id, handle, full name per line) next to
+# the exports names them; people.tsv (twitter:<id>) can still group them.
+[[source]]
+format = "reddit"
+root = "../Backup/reddit"
+path = "{file:comments|posts}.csv"
+account = "myhandle"
+
+[[source]]
+format = "bluesky"
+root = "../Backup/Bluesky"
+path = "{file}.json"
+account = "myhandle.bsky.social"
+
+[[source]]
+format = "instagram"
+root = "../Backup/Instagram"
+path = "{account}-{date}.tar.xz"
+
+[[source]]
+format = "tiktok"
+root = "../Backup/TikTok"
+path = "{export}/Direct Messages/{file}.txt"
+
+[[source]]
+format = "twitter"
+root = "../Backup/Twitter"
+path = "{export}.{ext:tar.xz|zip}"
+names = "users.tsv"      # id <TAB> handle <TAB> full name, kept next to the exports

@@ -1,0 +1,10 @@
+__pycache__/
+build/
+*.egg-info/
+*.db
+*.db-journal
+*.db.new
+/archive.toml
+/people.tsv
+/me.tsv
+/groups.tsv

@@ -1,0 +1,9 @@
+# groups.tsv: Group <TAB> member [<TAB> xterm-256 colour]. A member is a person named in people.tsv, or network:contact
+# with * wildcards (the contact as the viewer shows it). The People list is ordered by these groups, in this order,
+# then ungrouped people; names take the group's colour (the first line of a group may set one).
+Family	Mom	213
+Family	Dad
+Family	Jane Doe
+Work	jabber:*@corp.example.com	81
+Work	jabber:*@EX
+School	aim:oldbuddy2001

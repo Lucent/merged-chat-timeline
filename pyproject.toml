@@ -1,0 +1,18 @@
+[project]
+name = "merged-chat-timeline"
+version = "0.1.0"
+description = "A lifetime of chat logs and exports in one index: every copy merged, everyone on one timeline, browsed in a terminal"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+merged-chat-timeline = "chattimeline.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["chattimeline*"]
